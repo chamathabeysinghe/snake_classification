@@ -37,7 +37,7 @@ MANIFEST
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# Unit train / coverage reports
 htmlcov/
 .tox/
 .coverage
@@ -156,7 +156,12 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-
+*.jpg
+*.png
+*.jpeg
+*.hdf5
+*.h5
 /dataset/
 /dataset_preparation/image_downloader/dataset/
 .idea/
+*/*/logs/
