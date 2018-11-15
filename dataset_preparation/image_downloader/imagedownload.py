@@ -10,8 +10,8 @@ results = pd.read_csv('../results.csv')
 # print(results.head())
 
 def download_image(docId, basePdfUrl, baseImageUrl):
-    imageDirectory = 'dataset/images/{}'.format(docId)
-    pdfDirectory = 'dataset/pdfs/{}'.format(docId)
+    imageDirectory = 'data/images/{}'.format(docId)
+    pdfDirectory = 'data/pdfs/{}'.format(docId)
     if not os.path.exists(imageDirectory):
         os.makedirs(imageDirectory)
     if not os.path.exists(pdfDirectory):
