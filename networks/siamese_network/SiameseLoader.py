@@ -6,8 +6,8 @@ import numpy.random as rnd
 from PIL import Image
 from skimage import transform
 
-h = 64
-w = 64
+h = 150
+w = 150
 d = 3
 
 
@@ -86,11 +86,42 @@ class SiameseLoader:
         return pairs, targets
         # return np.asarray(pairs), np.asarray(targets)
 
-    def make_oneshot_task(self):
+    def get_validation_batch(self, batch_size, s='validation'):
+        x_val = self.data['validation']
+        x = self.data['train']
+        n_classes = x_val.shape[0]
+
+        categories = rnd.choice(n_classes, size=(batch_size,), replace=False)
+
+        pairs = [np.zeros((batch_size, h, w, d)) for i in range(2)]
+        targets = np.zeros((batch_size,))
+        targets[batch_size//2:] = 1
+
+        for i in range(batch_size):
+            category_1 = categories[i]
+            idx_1 = rnd.randint(0, x_val[category_1].shape[0])
+            # pick images of same class for 1st half, different for 2nd
+            if i >= batch_size // 2:
+                category_2 = category_1
+                idx_2 = rnd.randint(0, x[category_2].shape[0])
+            else:
+                category_2 = (category_1 + rnd.randint(1, n_classes)) % n_classes
+                idx_2 = rnd.randint(0, x[category_2].shape[0])
+
+            pairs[0][i, :, :, :] = x_val[category_1][idx_1].reshape((w, h, d))
+            pairs[1][i, :, :, :] = x[category_2][idx_2].reshape((w, h, d))
+
+        return pairs, targets
+
+    def make_oneshot_task(self, test_case_id):
+        """Create a one-shot classification task
+        pairs = <one image from validation set, images in training for all the classes>
+        targets = <single '1' and all others are '0'>
+        """
         x_val = self.data['validation']
         y_val = self.categories['validation']
         n_classes = x_val.shape[0]
-        test_index = rnd.randint(0, n_classes)
+        test_index =  test_case_id if test_case_id else rnd.randint(0, n_classes)
         test_category = y_val[test_index]
 
         test_image = x_val[test_index][0]
@@ -107,6 +138,22 @@ class SiameseLoader:
         pairs = [np.asarray(test_image_set), np.asarray(support_set)]
         return pairs, targets
 
+    def make_whole_validation_set(self):
+        test_set = []
+        sample_set = []
+        targets = []
+        for k in range(0,84):
+            print(k)
+            pairs, targetforpairs = self.make_oneshot_task(k)
+            test_set.append(pairs[0])
+            sample_set.append(pairs[1])
+            targets.append(targetforpairs)
+        test_set = np.concatenate(test_set)
+        sample_set = np.concatenate(sample_set)
+        targets = np.concatenate(targets)
+        return [test_set, sample_set], targets
+
+
     def generate(self, batch_size, s="train"):
         while True:
             pairs, targets = self.get_batch(batch_size, s)
@@ -114,9 +161,9 @@ class SiameseLoader:
             # targets = [0 for _ in range(batch_size)]
             yield pairs, targets
 
-    def generate_val(self):
+    def generate_val(self, batch_size):
         while True:
-            pairs, targets = self.make_oneshot_task()
+            pairs, targets = self.get_validation_batch(batch_size)
             yield pairs, targets
 
 
@@ -132,30 +179,27 @@ class SiameseLoader:
         return percent_correct
 
 
-# def illustrate_dataset(pairs, batch_size, targets):
-#     fig, axarr = plt.subplots(1, 2)
-#
-#     for i in range(batch_size):
-#         title = ''
-#         if (targets[i]==1):
-#             title = 'Matching'
-#         else:
-#             title = 'Not matching'
-#
-#         fig.suptitle(title, fontsize=16)
-#
-#         img1 = pairs[0][i]
-#         img2 = pairs[1][i]
-#         axarr[0].imshow(img1)
-#         axarr[1].imshow(img2)
-#         # plt.show()
-#         plt.waitforbuttonpress()
-#
-#
-# loader = SiameseLoader('./data')
-# # pairs, targets = loader.get_batch(5)
-# # print(pairs.shape)
-# pairs, targets = loader.make_oneshot_task()
-# print(pairs.shape)
-# illustrate_dataset(pairs, 32, targets)
+def illustrate_dataset(pairs, batch_size, targets):
+    fig, axarr = plt.subplots(1, 2)
 
+    for i in range(batch_size):
+        title = ''
+        if (targets[i]==1):
+            title = 'Matching'
+        else:
+            title = 'Not matching'
+
+        fig.suptitle(title, fontsize=16)
+
+        img1 = pairs[0][i]
+        img2 = pairs[1][i]
+        axarr[0].imshow(img1)
+        axarr[1].imshow(img2)
+        # plt.show()
+        plt.waitforbuttonpress()
+
+
+# loader = SiameseLoader('./data')
+# pairs, targets = loader.make_whole_validation_set()
+
+# illustrate_dataset(pairs, 32, targets)

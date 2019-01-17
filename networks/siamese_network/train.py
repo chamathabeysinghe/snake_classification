@@ -21,7 +21,7 @@ if len(ckpts) != 0:
 else:
     model = SiameseModel().build()
 
-optimizer = Adam(0.00006)
+optimizer = Adam(0.000006)
 model.compile(loss='binary_crossentropy', optimizer=optimizer)
 
 os.makedirs("checkpoints", exist_ok=True)
@@ -43,7 +43,7 @@ image_loader = SiameseLoader('./data')
 model.fit_generator(generator=image_loader.generate(32),
                     steps_per_epoch=4,
                     epochs=n_epochs_to_train,
-                    validation_data=image_loader.generate_val(),
+                    validation_data=image_loader.generate_val(32),
                     validation_steps=1,
                     callbacks=[checkpoint, tensorboard],
                     use_multiprocessing=True,

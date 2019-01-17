@@ -6,26 +6,22 @@ from keras.optimizers import Adam
 
 
 class SiameseModel:
-    input_shape = (64, 64, 3)
-    left_input = Input(input_shape)
-    right_input = Input(input_shape)
-
     def __init__(self):
         pass
 
     def build(self):
-        input_shape = (64, 64, 3)
+        input_shape = (150, 150, 3)
         left_input = Input(input_shape)
         right_input = Input(input_shape)
 
         convnet = Sequential()
-        convnet.add(Conv2D(10, (8, 8), activation='relu', input_shape=input_shape))
+        convnet.add(Conv2D(16, (3, 3), activation='relu', input_shape=input_shape))
         convnet.add(MaxPooling2D())
-        convnet.add(Conv2D(10, (4, 4), activation='relu'))
+        convnet.add(Conv2D(32, (3, 3), activation='relu'))
         convnet.add(MaxPooling2D())
-        convnet.add(Conv2D(10, (4, 4), activation='relu'))
+        convnet.add(Conv2D(64, (3, 3), activation='relu'))
         convnet.add(MaxPooling2D())
-        convnet.add(Conv2D(10, (4, 4), activation='relu'))
+        convnet.add(Conv2D(64, (3, 3), activation='relu'))
         convnet.add(Flatten())
         convnet.add(Dense(10, activation='sigmoid'))
 
