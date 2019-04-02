@@ -113,7 +113,7 @@ class SiameseLoader:
 
         return pairs, targets
 
-    def make_oneshot_task(self, test_case_id):
+    def make_oneshot_task(self, test_case_id=None):
         """Create a one-shot classification task
         pairs = <one image from validation set, images in training for all the classes>
         targets = <single '1' and all others are '0'>
@@ -153,6 +153,10 @@ class SiameseLoader:
         targets = np.concatenate(targets)
         return [test_set, sample_set], targets
 
+    def make_human_test_couple(self, _id, expected_target):
+        x_val = self.data['validation']
+        x_train = self.data['train']
+
 
     def generate(self, batch_size, s="train"):
         while True:
@@ -166,7 +170,6 @@ class SiameseLoader:
             pairs, targets = self.get_validation_batch(batch_size)
             yield pairs, targets
 
-
     def test_oneshot(self, model,k):
         n_correct = 0
         for i in range(k):
@@ -179,27 +182,27 @@ class SiameseLoader:
         return percent_correct
 
 
-def illustrate_dataset(pairs, batch_size, targets):
-    fig, axarr = plt.subplots(1, 2)
-
-    for i in range(batch_size):
-        title = ''
-        if (targets[i]==1):
-            title = 'Matching'
-        else:
-            title = 'Not matching'
-
-        fig.suptitle(title, fontsize=16)
-
-        img1 = pairs[0][i]
-        img2 = pairs[1][i]
-        axarr[0].imshow(img1)
-        axarr[1].imshow(img2)
-        # plt.show()
-        plt.waitforbuttonpress()
-
-
+# def illustrate_dataset(pairs, batch_size, targets):
+#     fig, axarr = plt.subplots(1, 2)
+#
+#     for i in range(batch_size):
+#         title = ''
+#         if (targets[i]==1):
+#             title = 'Matching'
+#         else:
+#             title = 'Not matching'
+#
+#         fig.suptitle(title, fontsize=16)
+#
+#         img1 = pairs[0][i]
+#         img2 = pairs[1][i]
+#         axarr[0].imshow(img1)
+#         axarr[1].imshow(img2)
+#         # plt.show()
+#         plt.waitforbuttonpress()
+#
+#
 # loader = SiameseLoader('./data')
-# pairs, targets = loader.make_whole_validation_set()
-
+# pairs, targets = loader.get_validation_batch(32)
+#
 # illustrate_dataset(pairs, 32, targets)
