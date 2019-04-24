@@ -5,6 +5,14 @@ from keras.models import Model, Sequential
 from keras.optimizers import Adam
 
 
+def euclid_dist(v):
+    return ((v[0] - v[1]) ** 2) ** 0.5
+
+
+def out_shape(shapes):
+    return shapes[0]
+
+
 class SiameseModel:
     def __init__(self):
         pass
@@ -29,7 +37,9 @@ class SiameseModel:
         encoded_r = convnet(right_input)
 
         L1_distance = lambda x: K.abs((x[0] - x[1]))
-        both = merge([encoded_l, encoded_r], mode=L1_distance, output_shape=lambda x: x[0])
+        # both = merge([encoded_l, encoded_r], mode=L1_distance, output_shape=lambda x: x[0])
+        both = Lambda(euclid_dist, output_shape=out_shape)([encoded_l, encoded_r])
+
         prediction = Dense(1, activation='sigmoid')(both)
         siamese_net = Model(input=[left_input, right_input], outputs=prediction)
         return siamese_net
