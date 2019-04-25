@@ -165,3 +165,13 @@ fabric.properties
 /dataset_preparation/image_downloader/dataset/
 .idea/
 */*/logs/
+
+/networks/siamese_network_2/data
+/networks/siamese_network_2/train
+/networks/siamese_network_2/val
+/networks/siamese_network_2/val_npy
+
+/networks/siamese_network/data/validation/
+/networks/siamese_network/data/train/
+/networks/siamese_network/data/train_new/
+.DS_Store
